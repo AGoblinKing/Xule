@@ -15,10 +15,10 @@ x.game(document.body, {
         ctrl.player = {
             x : 5
         };
-        ctrl.camera = { x : 0, y: 0, z: 0};
+        ctrl.camera = { x : 0, y: 0, z: 30, rx: 0, rz: 0, ry: 0};
 
         ctrl.meshes = [];
-        for(var i = 0; i < 100; i++) {
+        for(var i = 0; i < 1000; i++) {
             ctrl.meshes.push({
                 x : r(-10, 10),
                 y : r(-10, 10),
@@ -35,27 +35,40 @@ x.game(document.body, {
     },
     // stepLocal, stepRemote
     step : function(ctrl) {
-        if(x.key("W")) {
-            ctrl.player.x++;
-        }
+
         if(x.key("X")) {
-            ctrl.camera.x += Math.PI / 180;
+            ctrl.camera.rx += Math.PI / 180;
         }
         if(x.key("Z")) {
-            ctrl.camera.z += Math.PI / 180;
+            ctrl.camera.rz += Math.PI / 180;
         }
         if(x.key("C")) {
-            ctrl.camera.y += Math.PI / 180;
+            ctrl.camera.ry += Math.PI / 180;
+        }
+
+        if(x.key("W")) {
+            ctrl.camera.z -= .1;
+        }
+        if(x.key("A")) {
+            ctrl.camera.x -= .1;
+        }
+        if(x.key("S")) {
+            ctrl.camera.z += .1;
+        }
+        if(x.key("D")) {
+            ctrl.camera.x += .1;
         }
     },
     render : function(ctrl) {
         // map changes from data back
         return x("object", [
             x("camera", {
-                x : 3,
-                rx : ctrl.camera.x,
-                ry : ctrl.camera.y,
-                rz : ctrl.camera.z,
+                x : ctrl.camera.x,
+                y : ctrl.camera.y,
+                z : ctrl.camera.z,
+                rx : ctrl.camera.rx,
+                ry : ctrl.camera.ry,
+                rz : ctrl.camera.rz,
                 aspect : window.innerWidth / window.innerHeight
             }),
             x("light.point", {
