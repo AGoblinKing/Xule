@@ -23,7 +23,7 @@ x.game(document.body, {
                 x : r(-10, 10),
                 y : r(-10, 10),
                 z : r(-10, 10),
-                mat : r(0, 16777215)
+                mat : 0x0000FF
             });
         }
     },
@@ -83,11 +83,6 @@ x.game(document.body, {
             x("light.point", {
                 x : 5,
                 y : -10
-            }),
-            x("light.point", {
-                x : 5,
-                y : 10,
-                z : 30
             }),
             ctrl.meshes.map(function(box) {
                 return x("mesh", {
