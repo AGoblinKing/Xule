@@ -22,15 +22,16 @@ x.game(document.body, {
             ctrl.meshes.push({
                 x : r(-10, 10),
                 y : r(-10, 10),
-                z : r(-10, 10)
+                z : r(-10, 10),
+                mat : r(0, 16777215)
             });
         }
     },
     fixedStep : function(ctrl) {
         ctrl.meshes.map(function(mesh) {
-            mesh.x += r(-1, 1) * .6;
-            mesh.y += r(-1, 1) * .6;
-            mesh.z += r(-1, 1) * .6;
+            mesh.x += r(-1, 1) * .2;
+            mesh.y += r(-1, 1) * .2;
+            mesh.z += r(-1, 1) * .2;
         });
     },
     // stepLocal, stepRemote
@@ -75,6 +76,19 @@ x.game(document.body, {
                 x : 5,
                 y : 10
             }),
+            x("light.point", {
+                x : -5,
+                y : -10
+            }),
+            x("light.point", {
+                x : 5,
+                y : -10
+            }),
+            x("light.point", {
+                x : 5,
+                y : 10,
+                z : 30
+            }),
             ctrl.meshes.map(function(box) {
                 return x("mesh", {
                     x : box.x,
@@ -88,7 +102,7 @@ x.game(document.body, {
                     },
                     material : {
                         type: "lambert",
-                        color : 0x00FF00,
+                        color : box.mat,
                         shading : 1
                     }
                 });

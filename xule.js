@@ -59,11 +59,18 @@ function cacheOr(cache, params, create) {
     var key = JSON.stringify(params);
 
     if(!cache[key]) {
-        cache[key] = create(params);
+        cache[key] = create(fixParams(params));
     }
 
     return cache[key];
 }
+
+function fixParams(params) {
+    params.type = undefined;
+    params.color = params.color ? new THREE.Color(params.color) : undefined;
+    return params;
+}
+
 // strategies
 var targets = {
     "light.point" : THREE.PointLight,
@@ -95,7 +102,7 @@ var targets = {
         }
     },
     material : function(mat, target) {
-        if(mat.type !== mat.type) {
+        if(mat.type !== target.type) {
             target.material = cacheOr(matsCache, mat, mats[mat.type]);
         }
     }
