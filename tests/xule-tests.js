@@ -28,9 +28,9 @@ x.game(document.body, {
     },
     fixedStep : function(ctrl) {
         ctrl.meshes.map(function(mesh) {
-            mesh.x += r(-1, 1) * .1;
-            mesh.y += r(-1, 1) * .1;
-            mesh.z += r(-1, 1) * .1;
+            mesh.x += r(-1, 1) * .6;
+            mesh.y += r(-1, 1) * .6;
+            mesh.z += r(-1, 1) * .6;
         });
     },
     // stepLocal, stepRemote
