@@ -1,7 +1,7 @@
 "use strict";
 var THREE = require("three"),
-    modules = [],
-    keys = {};
+    u = require("./util"),
+    modules = [];
 
 // X is for Xule
 var x = module.exports = function x() {
@@ -10,17 +10,17 @@ var x = module.exports = function x() {
         children, attrs;
 
     // ugh
-    if(isArray(args[1])) {
+    if(u.isArray(args[1])) {
         children = args[1];
-    } else if(isArray(args[2])) {
+    } else if(u.isArray(args[2])) {
         children = args[2];
     } else {
         children = [];
     }
 
-    if(isObject(args[1])) {
+    if(u.isObject(args[1])) {
         attrs = args[1];
-    } else if(isObject(args[2])) {
+    } else if(u.isObject(args[2])) {
         attrs = args[2];
     } else {
         attrs = {};
@@ -32,14 +32,6 @@ var x = module.exports = function x() {
         attrs : attrs
     };
 };
-
-function isObject(quest) {
-    return Object.prototype.toString.call(quest) === "[object Object]";
-}
-
-function isArray(quest) {
-    return Object.prototype.toString.call(quest) === "[object Array]";
-}
 
 function apply(path, obj, value) {
     if(path.length === 1) {
@@ -110,6 +102,9 @@ var targets = {
     box : function(geo) {
         return new THREE.BoxGeometry(geo.width, geo.height, geo.depth,
                                      geo.widthSegements, geo.heightSegments, geo.depthSegments);
+    },
+    sphere : function(geo) {
+
     }
 }, mats = {
     lambert : function(material) {
@@ -122,8 +117,7 @@ var targets = {
 }, geomCache = {}, matsCache = {};
 
 function fixedStep() {
-    // Fixed logic ticking, 100 tick no render for you
-    setTimeout(fixedStep, 10);
+    // Fixed logic ticking, 10 tick no render for you
     modules.forEach(function(module) {
         if(module.fixedStep) {
             module.fixedStep(module._ctrl);
@@ -175,8 +169,8 @@ function build(module, render, cache, parent) {
 
 function compare(module, renders, caches, parent) {
     renders.forEach(function(child, i) {
-        if(isArray(child)) {
-            compare(module, child, (isArray(caches[i]) ? caches[i] : []), parent);
+        if(u.isArray(child)) {
+            compare(module, child, (u.isArray(caches[i]) ? caches[i] : []), parent);
         } else {
             build(module, child, caches[i], parent);
         }
@@ -190,10 +184,21 @@ function compare(module, renders, caches, parent) {
     }
 }
 
+var time = new Date(),
+    lastFixed = new Date();
+
 function step() {
+    var nTime = new Date(),
+        delta = nTime - time,
+        doFixed = nTime - lastFixed > 100;
+
     for(var i = 0; i < modules.length; i++) {
+        if(doFixed && modules[i].fixedStep) {
+            modules[i].fixedStep(modules[i]._ctrl);
+        }
+
         if(modules[i].step) {
-            modules[i].step(modules[i]._ctrl);
+            modules[i].step(modules[i]._ctrl, delta);
         }
 
         modules[i].cache = build(modules[i], modules[i].render(modules[i]._ctrl), modules[i].cache, modules[i].scene);
@@ -203,22 +208,14 @@ function step() {
             modules[i].renderer.render(modules[i].scene, modules[i].camera);
         }
     }
+
+    if(doFixed) {
+        lastFixed = nTime;
+    }
+
+    time = nTime;
     requestAnimationFrame(step);
 }
-
-x.key = function(key) {
-    return keys[key];
-};
-
-function keyDown(e) {
-    keys[e.keyCode] = true;
-    keys[String.fromCharCode(e.keyCode)] = true;
-};
-
-function keyUp(e) {
-    keys[e.keyCode] = false;
-    keys[String.fromCharCode(e.keyCode)] = false;
-};
 
 x.game = function(root, module) {
     if (!root) throw new Error("Please ensure the DOM element exists before rendering a scene to it.")
@@ -243,14 +240,7 @@ x.game = function(root, module) {
     module._ctrl = module.controller.call(module._ctrl) || module._ctrl;
 };
 
-// should this even be in here?
-x.lookAt = function(obj1, obj2) {
+x.logic = require("./logic");
 
-};
-
-// global listeners
-document.body.addEventListener("keydown", keyDown);
-document.body.addEventListener("keyup", keyUp);
 // Step step
-fixedStep();
 step();
